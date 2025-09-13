@@ -2,11 +2,13 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
+
 export const useAuthStore = create((set) => ({
   authUser: null,
   isSigningUp: false,
   isLoggingIn: false,
   isCheckingAuth: true,
+  isUpdatingProfile:false,
 
   // ✅ Check if user is logged in
   checkAuth: async () => {
@@ -63,4 +65,16 @@ export const useAuthStore = create((set) => ({
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   },
+  updateProfile: async (data)=>{
+    set({isUpdatingProfile:true})
+    try {
+      const res = await axiosInstance.post("/auth/updateProfile",data)
+      set({ authUser : res.data })
+      toast.success("Profile Image updated successfully")
+    } catch (error) {
+      toast.error(error.response?.data?.message || "not uploaded successfully")
+    }finally{
+      set({isUpdatingProfile:false})
+    }
+  }
 }));
