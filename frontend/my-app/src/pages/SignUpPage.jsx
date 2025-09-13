@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/useAuthStore"
 import toast from "react-hot-toast"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -13,6 +14,7 @@ const SignUpPage = () => {
   })
 
   const { signup, isSigningUp } = useAuthStore()
+  const navigate = useNavigate()
 
   const validateForm = () => {
     if (!formData.fullname.trim()) {
@@ -33,11 +35,17 @@ const SignUpPage = () => {
     return true
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const success = validateForm()
+    const success =  validateForm()
     if (success === true) {
-      signup(formData)
+     try {
+      await signup(formData);   // make sure signup returns a promise
+      toast.success("Account created successfully!");
+      navigate("/login");
+     } catch (error) {
+      toast.error("Signup failed, please try again");
+     }
     }
   }
 
