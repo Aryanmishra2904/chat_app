@@ -13,8 +13,7 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 
 // Middleware
-app.use(express.json({ limit: "50mb" })); 
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
 app.use(cookieParser());
 app.use(
   cors({
@@ -26,6 +25,7 @@ app.use(
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
+
 
 // Start server after DB connection
 connectDB()

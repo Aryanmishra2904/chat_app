@@ -65,16 +65,23 @@ export const useAuthStore = create((set) => ({
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   },
-  updateProfile: async (data)=>{
-    set({isUpdatingProfile:true})
-    try {
-      const res = await axiosInstance.post("/auth/updateProfile",data)
-      set({ authUser : res.data })
-      toast.success("Profile Image updated successfully")
-    } catch (error) {
-      toast.error(error.response?.data?.message || "not uploaded successfully")
-    }finally{
-      set({isUpdatingProfile:false})
-    }
+  updateProfile: async (formData) => {
+  set({ isUpdatingProfile: true });
+  try {
+    const res = await axiosInstance.put("/auth/updateProfile", formData, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    set({ authUser: res.data });
+    toast.success("Profile image updated successfully!");
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Upload failed");
+  } finally {
+    set({ isUpdatingProfile: false });
   }
+},
+
 }));
