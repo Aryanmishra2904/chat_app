@@ -6,14 +6,12 @@ import cookieParser from "cookie-parser";
 import messageRoutes from "./routes/message.route.js";
 import cors from "cors";
 
-
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const app = express();
 
 // Middleware
-
 app.use(cookieParser());
 app.use(
   cors({
@@ -22,10 +20,14 @@ app.use(
   })
 );
 
+// ✅ Add this middleware to parse JSON bodies
+app.use(express.json());
+// ✅ Optional: parse URL-encoded forms
+app.use(express.urlencoded({ extended: true }));
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
-
 
 // Start server after DB connection
 connectDB()
