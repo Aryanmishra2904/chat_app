@@ -1,8 +1,8 @@
-import React from 'react'
-
-const SettingPage = () => {
+const SettingPage= () => {
   return (
-    <div>SettingPage</div>
+    <div>
+      login page
+    </div>
   )
 }
 
