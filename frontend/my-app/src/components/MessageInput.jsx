@@ -1,37 +1,37 @@
-import React from 'react'
-import { useState,useRef} from "react"
-import { useChatStore } from '../store/useChatStore'
-import toast from 'react-hot-toast'
+import React, { useState, useRef } from "react";
+import { useChatStore } from "../store/useChatStore";
+import toast from "react-hot-toast";
+import { Image, Send, X } from "lucide-react"; // ✅ Added
 
 function MessageInput() {
-    const [text,setText] = useState("")
-    const[ImagePreview,setImagePreview]=useState(null)
-    const fileInputRef = useRef(null)
-    const { sendMessage }=useChatStore()
+  const [text, setText] = useState("");
+  const [imagePreview, setImagePreview] = useState(null); // ✅ lowercase i
+  const fileInputRef = useRef(null);
+  const { sendMessage } = useChatStore();
 
-    const handleImageChange =(e)=>{
-        const file = e.target.file[0]
-        if (!file.type.startsWith("image/")){
-            toast.error("Please select an Image file")
-            return
-        }
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]; // ✅ files not file
+    if (!file) return;
 
-        const reader = new Filereader();
-        reader.Onloadend=()=>{
-            setImagePreview(reader.result)
-
-        }
-        reader.readAsDataURL(file)
-
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
     }
 
-    const removeImage=()=>{
-        setImagePreview(null)
-        if (fileInputRef.current) fileInputRef.current.value=""
-    }
+    const reader = new FileReader(); // ✅ capitalization
+    reader.onloadend = () => { // ✅ lowercase onloadend
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
-    const handleSendMessage = async(e)=>{
-       e.preventDefault();
+  const removeImage = () => {
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
     if (!text.trim() && !imagePreview) return;
 
     try {
@@ -47,10 +47,10 @@ function MessageInput() {
     } catch (error) {
       console.error("Failed to send message:", error);
     }
-  
-    }
+  };
+
   return (
-     <div className="p-4 w-full">
+    <div className="p-4 w-full">
       {imagePreview && (
         <div className="mb-3 flex items-center gap-2">
           <div className="relative">
@@ -61,8 +61,7 @@ function MessageInput() {
             />
             <button
               onClick={removeImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300
-              flex items-center justify-center"
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-base-300 flex items-center justify-center"
               type="button"
             >
               <X className="size-3" />
@@ -90,8 +89,9 @@ function MessageInput() {
 
           <button
             type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+            className={`hidden sm:flex btn btn-circle ${
+              imagePreview ? "text-emerald-500" : "text-zinc-400"
+            }`}
             onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />
@@ -106,7 +106,7 @@ function MessageInput() {
         </button>
       </form>
     </div>
-  )
+  );
 }
 
-export default MessageInput
+export default MessageInput;

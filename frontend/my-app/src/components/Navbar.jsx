@@ -1,9 +1,9 @@
-import { useAuthStore } from "../store/useAuthStore"
-import { Link } from "react-router-dom"
-import { LogOut, Settings, MessageSquare, User } from "lucide-react"
+import { useAuthStore } from "../store/useAuthStore";
+import { Link } from "react-router-dom";
+import { LogOut, Settings, MessageSquare, User } from "lucide-react";
 
 const Navbar = () => {
-  const { logout, authUser } = useAuthStore()
+  const { logout, authUser } = useAuthStore();
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-base-100/80 backdrop-blur-md shadow-sm">
@@ -19,16 +19,16 @@ const Navbar = () => {
 
         {/* Right side - Actions */}
         <div className="flex items-center gap-3">
-          <Link
-            to="/settings"
-            className="btn btn-sm flex items-center gap-2"
-          >
-            <Settings className="w-4 h-4" />
-            <span className="hidden sm:inline">Settings</span>
-          </Link>
-
           {authUser && (
             <>
+              <Link
+                to="/settings"
+                className="btn btn-sm flex items-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">Settings</span>
+              </Link>
+
               <Link to="/profile" className="btn btn-sm flex items-center gap-2">
                 <User className="w-4 h-4" />
                 <span className="hidden sm:inline">Profile</span>
@@ -36,7 +36,8 @@ const Navbar = () => {
 
               <button
                 onClick={logout}
-                className="btn btn-sm flex items-center gap-2 text-white"
+                aria-label="Logout"
+                className="btn btn-sm flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Logout</span>
@@ -46,7 +47,7 @@ const Navbar = () => {
         </div>
       </nav>
     </header>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
