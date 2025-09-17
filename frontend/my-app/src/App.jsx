@@ -7,25 +7,27 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import SettingPage from "./pages/SettingPage.jsx";
 import Navbar from "./components/Navbar.jsx";
 import { useAuthStore } from "./store/useAuthStore.js";
+import { useChatStore } from "./store/useChatStore.js";
 import { useEffect } from "react";
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth ,onlineUsers } = useAuthStore();
-  console.log(onlineUsers)
+  const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+  const { subscribeToMessages, unsubscribeFromMessages, onlineUsers } = useChatStore();
+
+  useEffect(() => { checkAuth(); }, [checkAuth]);
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    if (authUser) subscribeToMessages();
+    return () => unsubscribeFromMessages();
+  }, [authUser, subscribeToMessages, unsubscribeFromMessages]);
 
-  if (isCheckingAuth) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader className="size-10 animate-spin" />
-      </div>
-    );
-  }
+  if (isCheckingAuth) return (
+    <div className="flex items-center justify-center h-screen">
+      <Loader className="size-10 animate-spin" />
+    </div>
+  );
 
   return (
     <div>
@@ -38,6 +40,14 @@ const App = () => {
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
       </Routes>
       <Toaster />
+
+      {authUser && (
+        <div className="fixed bottom-2 right-2 bg-white p-2 shadow rounded">
+          <p className="text-xs">
+            Online users: {onlineUsers?.length ? onlineUsers.join(", ") : "None"}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

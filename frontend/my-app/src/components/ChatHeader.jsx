@@ -6,37 +6,39 @@ const ChatHeader = () => {
   const { selectedUser, setSelectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
-  // Don’t render anything if no user is selected
   if (!selectedUser) return null;
 
+  // ✅ Check if this user is online
+  const isOnline = onlineUsers?.includes(selectedUser._id);
+
   return (
-    <div className="p-2.5 border-b border-base-300">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {/* Avatar */}
-          <div className="avatar">
-            <div className="size-10 rounded-full relative">
-              <img
-                src={selectedUser.profilePic || "/avatar.png"}
-                alt={selectedUser.fullName || "User"}
-              />
-            </div>
-          </div>
-
-          {/* User info */}
-          <div>
-            <h3 className="font-medium">{selectedUser.fullName || "Unknown User"}</h3>
-            <p className="text-sm text-base-content/70">
-              {onlineUsers?.includes(selectedUser._id) ? "Online" : "Offline"}
-            </p>
-          </div>
+    <div className="flex items-center justify-between p-3 border-b border-gray-300 bg-white">
+      {/* User Info */}
+      <div className="flex items-center gap-3">
+        <img
+          src={selectedUser.profilePic || "/avatar.png"}
+          alt={selectedUser.fullname}
+          className="w-10 h-10 rounded-full object-cover"
+        />
+        <div>
+          <h3 className="font-medium">{selectedUser.fullname}</h3>
+          <p className="text-sm text-gray-500">
+            {isOnline ? (
+              <span className="text-green-600">🟢 Online</span>
+            ) : (
+              <span className="text-gray-400">⚪ Offline</span>
+            )}
+          </p>
         </div>
-
-        {/* Close button */}
-        <button onClick={() => setSelectedUser(null)}>
-          <X />
-        </button>
       </div>
+
+      {/* Close button */}
+      <button
+        onClick={() => setSelectedUser(null)}
+        className="p-2 rounded-full hover:bg-gray-100"
+      >
+        <X size={20} />
+      </button>
     </div>
   );
 };
