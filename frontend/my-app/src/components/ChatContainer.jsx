@@ -3,37 +3,55 @@ import { useEffect, useRef } from "react";
 
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
-import MessageSkeleton from "./sekeltons/MessageSekelton"
+import MessageSkeleton from "./sekeltons/MessageSekelton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils.js";
 
 const ChatContainer = () => {
   const {
-    messages,
+    chats, // updated: store messages per user
     getMessages,
     isMessagesLoading,
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
   } = useChatStore();
+
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
+  // ✅ Fetch messages when switching users
   useEffect(() => {
-    getMessages(selectedUser._id);
+    if (!selectedUser) return;
+
+    // Only fetch if we don't have messages cached
+    if (!chats[selectedUser._id]) {
+      getMessages(selectedUser._id);
+    }
 
     subscribeToMessages();
 
     return () => unsubscribeFromMessages();
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser?._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
+  // ✅ Scroll to bottom on new messages
   useEffect(() => {
-    if (messageEndRef.current && messages) {
+    if (messageEndRef.current && selectedUser) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [chats[selectedUser?._id]]);
 
-  if (isMessagesLoading) {
+  if (!selectedUser) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p>Select a user to start chatting</p>
+      </div>
+    );
+  }
+
+  const messages = chats[selectedUser._id] || [];
+
+  if (isMessagesLoading && messages.length === 0) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
@@ -54,7 +72,7 @@ const ChatContainer = () => {
             className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
             ref={messageEndRef}
           >
-            <div className=" chat-image avatar">
+            <div className="chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
                   src={
@@ -66,11 +84,13 @@ const ChatContainer = () => {
                 />
               </div>
             </div>
+
             <div className="chat-header mb-1">
               <time className="text-xs opacity-50 ml-1">
                 {formatMessageTime(message.createdAt)}
               </time>
             </div>
+
             <div className="chat-bubble flex flex-col">
               {message.image && (
                 <img
@@ -89,4 +109,5 @@ const ChatContainer = () => {
     </div>
   );
 };
+
 export default ChatContainer;

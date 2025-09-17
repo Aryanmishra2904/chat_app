@@ -1,11 +1,10 @@
-// frontend/src/store/useChatStore.js
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore.js";
 
 export const useChatStore = create((set, get) => ({
-  messages: [],
+  chats: {}, // store messages per userId
   users: [],
   selectedUser: null,
   isUsersLoading: false,
@@ -28,7 +27,9 @@ export const useChatStore = create((set, get) => ({
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: res.data ?? [] });
+      set((state) => ({
+        chats: { ...state.chats, [userId]: res.data ?? [] },
+      }));
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to load messages");
     } finally {
@@ -37,14 +38,21 @@ export const useChatStore = create((set, get) => ({
   },
 
   sendMessage: async (messageData) => {
-    const { selectedUser, messages } = get();
+    const { selectedUser, chats } = get();
     if (!selectedUser) return;
 
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: [...messages, res.data] });
+      
+      // Update chat for the selected user only
+      set({
+        chats: {
+          ...chats,
+          [selectedUser._id]: [...(chats[selectedUser._id] || []), res.data],
+        },
+      });
 
-      // Emit to socket
+      // Emit via socket
       const socket = useAuthStore.getState().socket;
       socket?.emit("sendMessage", { ...res.data, receiverId: selectedUser._id });
     } catch (err) {
@@ -58,10 +66,14 @@ export const useChatStore = create((set, get) => ({
 
     socket.off("newMessage");
     socket.on("newMessage", (message) => {
-      const { selectedUser, messages } = get();
-      if (selectedUser && message.senderId === selectedUser._id) {
-        set({ messages: [...messages, message] });
-      }
+      const { chats } = get();
+
+      set({
+        chats: {
+          ...chats,
+          [message.senderId]: [...(chats[message.senderId] || []), message],
+        },
+      });
     });
   },
 
