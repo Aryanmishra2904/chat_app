@@ -10,6 +10,7 @@ export const useChatStore = create((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
 
+  // ✅ Fetch all users
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
@@ -22,6 +23,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // ✅ Fetch messages for a user
   getMessages: async (userId) => {
     if (!userId) return;
     set({ isMessagesLoading: true });
@@ -37,14 +39,17 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // ✅ Send message
   sendMessage: async (messageData) => {
     const { selectedUser, chats } = get();
     if (!selectedUser) return;
 
     try {
-      const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      
-      // Update chat for the selected user only
+      const res = await axiosInstance.post(
+        `/messages/send/${selectedUser._id}`,
+        messageData
+      );
+
       set({
         chats: {
           ...chats,
@@ -52,7 +57,6 @@ export const useChatStore = create((set, get) => ({
         },
       });
 
-      // Emit via socket
       const socket = useAuthStore.getState().socket;
       socket?.emit("sendMessage", { ...res.data, receiverId: selectedUser._id });
     } catch (err) {
@@ -60,14 +64,33 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // ✅ Delete message
+  deleteMessage: async (messageId, userId) => {
+    try {
+      await axiosInstance.delete(`/messages/${messageId}`);
+      set((state) => ({
+        chats: {
+          ...state.chats,
+          [userId]: (state.chats[userId] || []).filter(
+            (msg) => msg._id !== messageId
+          ),
+        },
+      }));
+      toast.success("Message deleted");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete message");
+    }
+  },
+
+  // ✅ Socket listeners
   subscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
 
+    // New message listener
     socket.off("newMessage");
     socket.on("newMessage", (message) => {
       const { chats } = get();
-
       set({
         chats: {
           ...chats,
@@ -75,11 +98,30 @@ export const useChatStore = create((set, get) => ({
         },
       });
     });
+
+    // Deleted message listener
+    socket.off("messageDeleted");
+    socket.on("messageDeleted", (messageId) => {
+      const { chats, selectedUser } = get();
+      if (!selectedUser) return;
+
+      set({
+        chats: {
+          ...chats,
+          [selectedUser._id]: (chats[selectedUser._id] || []).filter(
+            (msg) => msg._id !== messageId
+          ),
+        },
+      });
+    });
   },
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
-    if (socket) socket.off("newMessage");
+    if (socket) {
+      socket.off("newMessage");
+      socket.off("messageDeleted");
+    }
   },
 
   setSelectedUser: (user) => set({ selectedUser: user }),

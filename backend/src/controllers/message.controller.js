@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
-import cloudinary from "cloudinary";  // ✅ import cloudinary
+import cloudinary from "cloudinary"; 
+import { getReceiverSocketId, io } from "../lib/socket.js";
 
 // Get all users except logged-in user
 export const getUsersForSidebar = async (req, res) => {
@@ -26,8 +27,8 @@ export const getMessages = async (req, res) => {
 
     const messages = await Message.find({
       $or: [
-        { senderId: myId, reciverId: userToChatId },
-        { senderId: userToChatId, reciverId: myId },
+        { senderId: myId, receiverId: userToChatId },
+        { senderId: userToChatId, receiverId: myId },
       ],
     });
 
@@ -53,16 +54,55 @@ export const sendMessages = async (req, res) => {
 
     const newMessage = new Message({
       senderId,
-      receiverId: receiverId, // ✅ corrected
+      receiverId,
       text,
       image: imageUrl,
     });
 
     await newMessage.save();
 
-    res.status(201).json(newMessage); // ✅ send response back
+    // Notify receiver via socket
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+
+    res.status(201).json(newMessage);
   } catch (error) {
     console.log("Error in sendMessages controller", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// 🆕 Delete a message
+export const deleteMessage = async (req, res) => {
+  try {
+    const messageId = req.params.id;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+
+    if (!message) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+
+    // ✅ Only sender can delete
+    if (message.senderId.toString() !== userId.toString()) {
+      return res.status(403).json({ error: "Not allowed to delete this message" });
+    }
+
+    await message.deleteOne();
+
+    // ✅ Notify both sender & receiver via sockets
+    const receiverSocketId = getReceiverSocketId(message.receiverId.toString());
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("messageDeleted", messageId);
+    }
+    io.to(userId.toString()).emit("messageDeleted", messageId);
+
+    res.json({ success: true, messageId });
+  } catch (error) {
+    console.log("Error in deleteMessage controller", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -6,15 +6,17 @@ import MessageInput from "./MessageInput";
 import MessageSkeleton from "./sekeltons/MessageSekelton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils.js";
+import { Trash2 } from "lucide-react"; // 🗑️ icon
 
 const ChatContainer = () => {
   const {
-    chats, // updated: store messages per user
+    chats,
     getMessages,
     isMessagesLoading,
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
+    deleteMessage, // ✅ use deleteMessage
   } = useChatStore();
 
   const { authUser } = useAuthStore();
@@ -24,15 +26,13 @@ const ChatContainer = () => {
   useEffect(() => {
     if (!selectedUser) return;
 
-    // Only fetch if we don't have messages cached
     if (!chats[selectedUser._id]) {
       getMessages(selectedUser._id);
     }
 
     subscribeToMessages();
-
     return () => unsubscribeFromMessages();
-  }, [selectedUser?._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser?._id]);
 
   // ✅ Scroll to bottom on new messages
   useEffect(() => {
@@ -66,43 +66,62 @@ const ChatContainer = () => {
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message._id}
-            className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
-            ref={messageEndRef}
-          >
-            <div className="chat-image avatar">
-              <div className="size-10 rounded-full border">
-                <img
-                  src={
-                    message.senderId === authUser._id
-                      ? authUser.profilePic || "/avatar.png"
-                      : selectedUser.profilePic || "/avatar.png"
-                  }
-                  alt="profile pic"
-                />
+        {messages.map((message) => {
+          const isMine = message.senderId === authUser._id;
+
+          return (
+            <div
+              key={message._id}
+              className={`chat ${isMine ? "chat-end" : "chat-start"}`}
+              ref={messageEndRef}
+            >
+              {/* Avatar */}
+              <div className="chat-image avatar">
+                <div className="size-10 rounded-full border">
+                  <img
+                    src={
+                      isMine
+                        ? authUser.profilePic || "/avatar.png"
+                        : selectedUser.profilePic || "/avatar.png"
+                    }
+                    alt="profile pic"
+                  />
+                </div>
+              </div>
+
+              {/* Message content */}
+              <div className="flex flex-col max-w-xs">
+                <div className="chat-header flex items-center gap-2 mb-1">
+                  <time className="text-xs opacity-50">
+                    {formatMessageTime(message.createdAt)}
+                  </time>
+
+                  {/* 🗑️ Show delete only for my messages */}
+                  {isMine && (
+                    <button
+                      onClick={() => deleteMessage(message._id, selectedUser._id)}
+                      className="text-red-500 hover:text-red-700"
+                      title="Delete message"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="chat-bubble flex flex-col">
+                  {message.image && (
+                    <img
+                      src={message.image}
+                      alt="Attachment"
+                      className="sm:max-w-[200px] rounded-md mb-2"
+                    />
+                  )}
+                  {message.text && <p>{message.text}</p>}
+                </div>
               </div>
             </div>
-
-            <div className="chat-header mb-1">
-              <time className="text-xs opacity-50 ml-1">
-                {formatMessageTime(message.createdAt)}
-              </time>
-            </div>
-
-            <div className="chat-bubble flex flex-col">
-              {message.image && (
-                <img
-                  src={message.image}
-                  alt="Attachment"
-                  className="sm:max-w-[200px] rounded-md mb-2"
-                />
-              )}
-              {message.text && <p>{message.text}</p>}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <MessageInput />
