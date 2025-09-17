@@ -12,21 +12,27 @@ const ChatHeader = () => {
   const isOnline = onlineUsers?.includes(selectedUser._id);
 
   return (
-    <div className="flex items-center justify-between p-3 border-b border-gray-300 bg-white">
+    <div className="flex items-center justify-between p-3 border-b border-gray-700 bg-gray-800 text-white shadow-md">
       {/* User Info */}
       <div className="flex items-center gap-3">
         <img
           src={selectedUser.profilePic || "/avatar.png"}
           alt={selectedUser.fullname}
-          className="w-10 h-10 rounded-full object-cover"
+          className="w-10 h-10 rounded-full object-cover border-2 border-gray-500"
         />
         <div>
-          <h3 className="font-medium">{selectedUser.fullname}</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="font-semibold text-white">{selectedUser.fullname}</h3>
+          <p className="text-sm">
             {isOnline ? (
-              <span className="text-green-600">🟢 Online</span>
+              <span className="flex items-center gap-1 text-green-400">
+                <span className="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+                Online
+              </span>
             ) : (
-              <span className="text-gray-400">⚪ Offline</span>
+              <span className="flex items-center gap-1 text-gray-400">
+                <span className="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>
+                Offline
+              </span>
             )}
           </p>
         </div>
@@ -35,7 +41,7 @@ const ChatHeader = () => {
       {/* Close button */}
       <button
         onClick={() => setSelectedUser(null)}
-        className="p-2 rounded-full hover:bg-gray-100"
+        className="p-2 rounded-full hover:bg-gray-700 transition-colors"
       >
         <X size={20} />
       </button>
