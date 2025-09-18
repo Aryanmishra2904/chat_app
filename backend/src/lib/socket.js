@@ -15,9 +15,8 @@ const io = new Server(server, {
 
 const userSocketMap = {}; // { userId: socketId }
 
-export const getReceiverSocketId = (receiverId) => {
-  return userSocketMap[receiverId];
-};
+// ✅ helper function to get receiver socketId
+export const getReceiverSocketId = (receiverId) => userSocketMap[receiverId];
 
 io.on("connection", (socket) => {
   const userId = socket.handshake.auth?.userId;
@@ -27,15 +26,10 @@ io.on("connection", (socket) => {
 
   console.log("A user connected:", socket.id);
 
-  // Send updated online users
+  // Send updated online users list
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  socket.on("sendMessage", (message) => {
-    const receiverSocketId = userSocketMap[message.receiverId];
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", message);
-    }
-  });
+  // ❌ Removed duplicate socket.on("sendMessage")
 
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);

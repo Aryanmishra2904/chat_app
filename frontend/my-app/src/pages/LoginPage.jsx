@@ -87,7 +87,7 @@ const LoginPage = () => {
         <button
           type="submit"
           disabled={isLoggingIn}
-          className="w-full flex justify-center items-center gap-2 py-2 px-4 bg-white/30 text-white font-semibold rounded-lg hover:bg-white/40 disabled:opacity-50 transition-colors"
+          className="w-full flex justify-center items-center gap-2 py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-white/40 disabled:opacity-50 transition-colors"
         >
           {isLoggingIn ? (
             <>

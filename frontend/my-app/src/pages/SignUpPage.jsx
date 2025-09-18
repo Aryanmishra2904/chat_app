@@ -125,7 +125,7 @@ const SignUpPage = () => {
           {/* Submit button */}
           <button
             type="submit"
-            className="btn btn-primary w-full"
+            className="btn btn-primary w-full bg-blue-600"
             disabled={isSigningUp}
           >
             {isSigningUp ? (
