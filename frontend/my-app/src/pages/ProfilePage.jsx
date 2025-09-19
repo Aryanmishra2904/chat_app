@@ -3,21 +3,36 @@ import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User } from "lucide-react";
 
 const ProfilePage = () => {
+  // ✅ pull updateProfile and isUpdatingProfile from store
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
-  const [selectedImg, setSelectImg] = useState(null);
+  const [selectedImg, setSelectedImg] = useState(null);
 
+  // 🟡 Debug logs + error handling
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      console.warn("⚠️ No file selected for upload.");
+      return;
+    }
+
+    console.log("🟡 File selected for upload:", file.name, file);
 
     // Preview in browser
-    setSelectImg(URL.createObjectURL(file));
+    const previewUrl = URL.createObjectURL(file);
+    setSelectedImg(previewUrl);
+    console.log("🟢 Preview URL created:", previewUrl);
 
     // Send file as FormData
     const formData = new FormData();
-    formData.append("profilepic", file);
+    formData.append("profilePic", file); // ⚠️ make sure backend expects "profilePic"
 
-    await updateProfile(formData);
+    try {
+      console.log("🟡 Calling updateProfile with FormData...");
+      const updatedUser = await updateProfile(formData); // ✅ should now exist
+      console.log("🟢 updateProfile successful, updated user:", updatedUser);
+    } catch (err) {
+      console.error("🔴 updateProfile failed:", err);
+    }
   };
 
   return (
