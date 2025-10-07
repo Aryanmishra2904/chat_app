@@ -13,7 +13,7 @@ router.post("/logout", logout);
 
 router.put("/updateProfile", protectRoute,upload.single("profilePic"),updateProfile);
 
-// ✅ Capital A to match frontend call
+
 router.get("/checkAuth", protectRoute, checkAuth);
 
 export default router;

@@ -1,16 +1,16 @@
 import React, { useState, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
 import toast from "react-hot-toast";
-import { Image, Send, X } from "lucide-react"; // ✅ Added
+import { Image, Send, X } from "lucide-react"; 
 
 function MessageInput() {
   const [text, setText] = useState("");
-  const [imagePreview, setImagePreview] = useState(null); // ✅ lowercase i
+  const [imagePreview, setImagePreview] = useState(null); 
   const fileInputRef = useRef(null);
   const { sendMessage } = useChatStore();
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0]; // ✅ files not file
+    const file = e.target.files[0]; 
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
@@ -18,8 +18,8 @@ function MessageInput() {
       return;
     }
 
-    const reader = new FileReader(); // ✅ capitalization
-    reader.onloadend = () => { // ✅ lowercase onloadend
+    const reader = new FileReader(); 
+    reader.onloadend = () => { 
       setImagePreview(reader.result);
     };
     reader.readAsDataURL(file);

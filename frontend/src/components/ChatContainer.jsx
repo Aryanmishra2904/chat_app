@@ -6,7 +6,7 @@ import MessageInput from "./MessageInput";
 import MessageSkeleton from "./sekeltons/MessageSekelton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils.js";
-import { Trash2 } from "lucide-react"; // 🗑️ icon
+import { Trash2 } from "lucide-react"; 
 
 const ChatContainer = () => {
   const {
@@ -16,13 +16,13 @@ const ChatContainer = () => {
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
-    deleteMessage, // ✅ use deleteMessage
+    deleteMessage, 
   } = useChatStore();
 
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
-  // ✅ Fetch messages when switching users
+ 
   useEffect(() => {
     if (!selectedUser) return;
 
@@ -34,7 +34,7 @@ const ChatContainer = () => {
     return () => unsubscribeFromMessages();
   }, [selectedUser?._id]);
 
-  // ✅ Scroll to bottom on new messages
+  
   useEffect(() => {
     if (messageEndRef.current && selectedUser) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -96,7 +96,7 @@ const ChatContainer = () => {
                     {formatMessageTime(message.createdAt)}
                   </time>
 
-                  {/* 🗑️ Show delete only for my messages */}
+                  {/*  Show delete only for my messages */}
                   {isMine && (
                     <button
                       onClick={() => deleteMessage(message._id, selectedUser._id)}

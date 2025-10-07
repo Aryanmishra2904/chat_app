@@ -4,13 +4,13 @@ import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore.js";
 
 export const useChatStore = create((set, get) => ({
-  chats: {}, // store messages per userId
+  chats: {}, 
   users: [],
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
 
-  // ✅ Fetch all users
+  
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
@@ -23,7 +23,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // ✅ Fetch messages for a user
   getMessages: async (userId) => {
     if (!userId) return;
     set({ isMessagesLoading: true });
@@ -39,7 +38,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // ✅ Send message
   sendMessage: async (messageData) => {
     const { selectedUser, chats } = get();
     if (!selectedUser) return;
@@ -64,7 +62,6 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // ✅ Delete message
   deleteMessage: async (messageId, userId) => {
     try {
       await axiosInstance.delete(`/messages/${messageId}`);
@@ -82,12 +79,9 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  // ✅ Socket listeners
   subscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
-
-    // New message listener
     socket.off("newMessage");
     socket.on("newMessage", (message) => {
       const { chats } = get();
@@ -98,8 +92,6 @@ export const useChatStore = create((set, get) => ({
         },
       });
     });
-
-    // Deleted message listener
     socket.off("messageDeleted");
     socket.on("messageDeleted", (messageId) => {
       const { chats, selectedUser } = get();

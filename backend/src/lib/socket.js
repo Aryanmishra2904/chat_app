@@ -1,4 +1,3 @@
-// backend/lib/socket.js
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
@@ -13,9 +12,9 @@ const io = new Server(server, {
   },
 });
 
-const userSocketMap = {}; // { userId: socketId }
+const userSocketMap = {}; 
 
-// ✅ helper function to get receiver socketId
+//  helper function to get receiver socketId
 export const getReceiverSocketId = (receiverId) => userSocketMap[receiverId];
 
 io.on("connection", (socket) => {
@@ -29,7 +28,7 @@ io.on("connection", (socket) => {
   // Send updated online users list
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-  // ❌ Removed duplicate socket.on("sendMessage")
+  //  Removed duplicate socket.on("sendMessage")
 
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);

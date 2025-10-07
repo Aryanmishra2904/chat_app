@@ -1,9 +1,9 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../lib/utils.js";
-import cloudinary from "../lib/cloudinary.js"; // ✅ only import this one
+import cloudinary from "../lib/cloudinary.js"; 
 
-// ================== SIGNUP ==================
+
 export const signup = async (req, res) => {
   const { fullname, email, password } = req.body;
   try {
@@ -46,7 +46,7 @@ export const signup = async (req, res) => {
   }
 };
 
-// ================== LOGIN ==================
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -72,7 +72,7 @@ export const login = async (req, res) => {
   }
 };
 
-// ================== LOGOUT ==================
+
 export const logout = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
@@ -83,18 +83,18 @@ export const logout = (req, res) => {
   }
 };
 
-// ================== UPDATE PROFILE ==================
+
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user._id;
 
     const updates = {};
 
-    // Update fullname/email if provided
+    
     if (req.body.fullname) updates.fullname = req.body.fullname;
     if (req.body.email) updates.email = req.body.email;
 
-    // Update profile picture if file is provided
+    
     if (req.file) {
       const uploadToCloudinary = (buffer) => {
         return new Promise((resolve, reject) => {
@@ -128,7 +128,7 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-// ================== CHECK AUTH ==================
+
 export const checkAuth = (req, res) => {
   try {
     res.status(200).json(req.user);

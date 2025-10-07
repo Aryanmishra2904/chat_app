@@ -3,7 +3,7 @@ import Message from "../models/message.model.js";
 import cloudinary from "cloudinary"; 
 import { getReceiverSocketId, io } from "../lib/socket.js";
 
-// Get all users except logged-in user
+
 export const getUsersForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
@@ -19,7 +19,7 @@ export const getUsersForSidebar = async (req, res) => {
   }
 };
 
-// Get messages between logged-in user and another user
+
 export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
@@ -39,7 +39,7 @@ export const getMessages = async (req, res) => {
   }
 };
 
-// Send a message
+
 export const sendMessages = async (req, res) => {
   try {
     const { text, image } = req.body;
@@ -61,7 +61,7 @@ export const sendMessages = async (req, res) => {
 
     await newMessage.save();
 
-    // Notify receiver via socket
+    
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
@@ -74,7 +74,7 @@ export const sendMessages = async (req, res) => {
   }
 };
 
-// 🆕 Delete a message
+
 export const deleteMessage = async (req, res) => {
   try {
     const messageId = req.params.id;
@@ -86,14 +86,14 @@ export const deleteMessage = async (req, res) => {
       return res.status(404).json({ error: "Message not found" });
     }
 
-    // ✅ Only sender can delete
+    
     if (message.senderId.toString() !== userId.toString()) {
       return res.status(403).json({ error: "Not allowed to delete this message" });
     }
 
     await message.deleteOne();
 
-    // ✅ Notify both sender & receiver via sockets
+    
     const receiverSocketId = getReceiverSocketId(message.receiverId.toString());
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("messageDeleted", messageId);

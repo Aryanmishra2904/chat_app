@@ -8,7 +8,7 @@ const ChatHeader = () => {
 
   if (!selectedUser) return null;
 
-  // ✅ Check if this user is online
+  
   const isOnline = onlineUsers?.includes(selectedUser._id);
 
   return (

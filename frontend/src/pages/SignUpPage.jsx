@@ -12,7 +12,7 @@ const SignUpPage = () => {
     password: "",
   });
 
-  // ✅ Zustand selectors
+ 
   const signup = useAuthStore((state) => state.signup);
   const isSigningUp = useAuthStore((state) => state.isSigningUp);
 
@@ -38,22 +38,22 @@ const SignUpPage = () => {
       password: formData.password,
     };
 
-    // ✅ Debugging logs
-    console.log("🟡 Submitting signup form...");
+   
+    console.log(" Submitting signup form...");
     console.log("Payload being sent to backend:", payload);
     console.log("Signup function type:", typeof signup);
 
     try {
-      const res = await signup(payload); // store signup
-      console.log("🟢 Signup response from backend:", res);
+      const res = await signup(payload); 
+      console.log(" Signup response from backend:", res);
 
       toast.success("Account created successfully!");
       navigate("/");
     } catch (err) {
-      console.error("🔴 Signup error (page):", err);
+      console.error(" Signup error (page):", err);
       if (err.response) {
-        console.error("🔴 Error response data:", err.response.data);
-        console.error("🔴 Error status:", err.response.status);
+        console.error(" Error response data:", err.response.data);
+        console.error(" Error status:", err.response.status);
       }
     }
   };
